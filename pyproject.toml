@@ -9,10 +9,12 @@ description = "Check whether packages actually exist on PyPI before you install 
 requires-python = ">=3.11"
 dependencies = [
     "requests>=2.31",
+    "mcp>=2.0",
 ]
 
 [project.scripts]
 ghostdep = "ghostdep.cli:main"
+ghostdep-mcp = "ghostdep.mcp_server:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
