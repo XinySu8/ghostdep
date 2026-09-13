@@ -1,6 +1,9 @@
 from pathlib import Path
 
+import pytest
+
 from ghostdep.parsers import (
+    UnsupportedManifestFormat,
     is_valid_package_name,
     parse_pyproject_toml,
     parse_requirements_txt,
@@ -30,11 +33,38 @@ def test_parse_pyproject_toml(tmp_path: Path):
     assert parse_pyproject_toml(pyproject) == ["requests", "flask"]
 
 
-def test_poetry_style_pyproject_yields_no_names(tmp_path: Path):
+def test_poetry_style_pyproject_raises_unsupported_format(tmp_path: Path):
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text(
         '[tool.poetry.dependencies]\n'
         'requests = "^2.31"\n'
+    )
+    with pytest.raises(UnsupportedManifestFormat):
+        parse_pyproject_toml(pyproject)
+
+
+def test_hybrid_pyproject_raises_instead_of_silently_dropping_poetry_deps(tmp_path: Path):
+    # A file with deps under both [project] and [tool.poetry] must not
+    # silently report only the [project] subset as a clean, complete scan.
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        '[project]\n'
+        'dependencies = ["requests"]\n'
+        '[tool.poetry.dependencies]\n'
+        'flask = "^2.0"\n'
+    )
+    with pytest.raises(UnsupportedManifestFormat):
+        parse_pyproject_toml(pyproject)
+
+
+def test_genuinely_empty_pep621_project_returns_empty_list(tmp_path: Path):
+    # No poetry table at all: an empty dependency list is not mistaken for
+    # an unsupported format.
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        '[project]\n'
+        'name = "demo"\n'
+        'dependencies = []\n'
     )
     assert parse_pyproject_toml(pyproject) == []
 

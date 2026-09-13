@@ -27,8 +27,18 @@ def parse_requirements_txt(path: Path) -> list[str]:
     return names
 
 
+class UnsupportedManifestFormat(Exception):
+    """Raised when a pyproject.toml declares dependencies in a format this
+    parser doesn't read (e.g. Poetry's [tool.poetry.dependencies])."""
+
+
 def parse_pyproject_toml(path: Path) -> list[str]:
     data = tomllib.loads(path.read_text())
+    if data.get("tool", {}).get("poetry", {}).get("dependencies"):
+        raise UnsupportedManifestFormat(
+            "Poetry-style `[tool.poetry.dependencies]` is not supported; "
+            "only PEP 621 `[project.dependencies]` is read"
+        )
     raw_deps = data.get("project", {}).get("dependencies", [])
     names = []
     for dep in raw_deps:

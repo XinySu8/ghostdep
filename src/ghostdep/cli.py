@@ -2,7 +2,11 @@ import argparse
 from pathlib import Path
 
 from ghostdep.checker import Status, check_package
-from ghostdep.parsers import is_valid_package_name, parse_manifest
+from ghostdep.parsers import (
+    UnsupportedManifestFormat,
+    is_valid_package_name,
+    parse_manifest,
+)
 
 
 def _collect_names(args: argparse.Namespace) -> list[str]:
@@ -35,14 +39,12 @@ def main(argv: list[str] | None = None) -> int:
         names = _collect_names(args)
     except FileNotFoundError:
         parser.error(f"file not found: {args.file}")
+    except UnsupportedManifestFormat as exc:
+        parser.error(str(exc))
 
     if not names:
         if args.file:
-            parser.error(
-                f"no dependencies found in {args.file} "
-                "(only PEP 621 `[project.dependencies]` is supported; "
-                "Poetry-style `[tool.poetry.dependencies]` is not)"
-            )
+            parser.error(f"no dependencies found in {args.file}")
         parser.error("no package names given (pass names directly or use --file)")
 
     invalid = [name for name in names if not is_valid_package_name(name)]
