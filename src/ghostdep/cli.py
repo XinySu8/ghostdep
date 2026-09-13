@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
 
-from slopcheck.checker import Status, check_package
-from slopcheck.parsers import is_valid_package_name, parse_manifest
+from ghostdep.checker import Status, check_package
+from ghostdep.parsers import is_valid_package_name, parse_manifest
 
 
 def _collect_names(args: argparse.Namespace) -> list[str]:
@@ -21,7 +21,7 @@ def _format_result(result) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="slopcheck",
+        prog="ghostdep",
         description="Verify that package names actually exist on PyPI before you install them.",
     )
     parser.add_argument("packages", nargs="*", help="Package names to check")

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from slopcheck.parsers import (
+from ghostdep.parsers import (
     is_valid_package_name,
     parse_pyproject_toml,
     parse_requirements_txt,
