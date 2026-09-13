@@ -7,6 +7,7 @@ from ghostdep.parsers import (
     is_valid_package_name,
     parse_manifest,
 )
+from ghostdep.suggest import suggest_replacement
 
 
 def _collect_names(args: argparse.Namespace) -> list[str]:
@@ -19,7 +20,9 @@ def _format_result(result) -> str:
     if result.status is Status.EXISTS:
         return f"OK        {result.name}"
     if result.status is Status.NOT_FOUND:
-        return f"NOT FOUND {result.name}  <-- does not exist on PyPI, do not install"
+        replacement = suggest_replacement(result.name)
+        suggestion = f" -- did you mean '{replacement}'?" if replacement else ""
+        return f"NOT FOUND {result.name}  <-- does not exist on PyPI, do not install{suggestion}"
     return f"ERROR     {result.name}  ({result.detail})"
 
 

@@ -19,6 +19,13 @@ def test_main_returns_zero_when_all_exist(mock_check):
     assert main(["requests"]) == 0
 
 
+@patch("ghostdep.cli.check_package")
+def test_main_suggests_replacement_for_a_typo(mock_check, capsys):
+    mock_check.return_value = PackageResult("reqeusts", Status.NOT_FOUND)
+    assert main(["reqeusts"]) == 1
+    assert "did you mean 'requests'?" in capsys.readouterr().out
+
+
 def test_main_exits_cleanly_on_missing_file(tmp_path: Path, capsys):
     missing = tmp_path / "does-not-exist.txt"
     with pytest.raises(SystemExit):

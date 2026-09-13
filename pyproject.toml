@@ -21,3 +21,6 @@ dev = ["pytest>=8.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+ghostdep = ["data/popular_packages.txt"]
