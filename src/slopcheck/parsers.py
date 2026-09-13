@@ -42,3 +42,13 @@ def parse_manifest(path: Path) -> list[str]:
     if path.name == "pyproject.toml":
         return parse_pyproject_toml(path)
     return parse_requirements_txt(path)
+
+
+def is_valid_package_name(name: str) -> bool:
+    """True if `name` is safe to interpolate into the PyPI lookup URL.
+
+    Names parsed from a manifest already go through _NAME_RE and are always
+    valid; this guards names typed directly on the command line, which
+    otherwise reach checker.check_package unvalidated.
+    """
+    return bool(_NAME_RE.fullmatch(name))
